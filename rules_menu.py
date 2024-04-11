@@ -52,3 +52,4 @@ class DropdownView(disnake.ui.View):
 
 def setup(bot):
     bot.add_cog(RulesMenu(bot))
+

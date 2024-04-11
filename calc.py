@@ -18,3 +18,4 @@ class Calculator(commands.Cog):
             result = "Неверный оператор!"
 
         await ctx.send(str(result))
+

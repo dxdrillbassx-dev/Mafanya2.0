@@ -13,3 +13,4 @@ class Censorship(commands.Cog):
                 if content.lower() == censored_word:
                     await message.delete()
                     await message.channel.send(f"{message.author.mention} такие слова запрещены!")
+

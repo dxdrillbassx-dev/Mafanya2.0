@@ -17,3 +17,4 @@ class Welcome(commands.Cog):
 
         await member.add_roles(role)
         await channel.send(embed=embed)
+

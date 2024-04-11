@@ -32,3 +32,4 @@ async def on_command_error(ctx, error):
 
 # Токен
 bot.run('MTIyNjkzNzYwMjY2NjQwMTgxMg.G0VaZu.nik9AnmESFU5gif3hXR2Mmk4LFH3sDTeFFG_IM')
+

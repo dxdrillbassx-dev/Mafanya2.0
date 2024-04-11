@@ -18,3 +18,4 @@ class Moderation(commands.Cog):
         await ctx.send(f"Администратор {ctx.author.mention} забанил пользователя {member.mention}")
         await member.ban(reason=reason)
         await ctx.message.delete()
+
