@@ -1,3 +1,4 @@
+import disnake
 from disnake.ext import commands
 
 class Welcome(commands.Cog):
@@ -17,3 +18,4 @@ class Welcome(commands.Cog):
 
         await member.add_roles(role)
         await channel.send(embed=embed)
+
