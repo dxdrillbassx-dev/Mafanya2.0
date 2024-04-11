@@ -1,3 +1,4 @@
+import disnake
 from disnake.ext import commands
 
 class Welcome(commands.Cog):
