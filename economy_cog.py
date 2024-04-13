@@ -18,7 +18,7 @@ class Economy(commands.Cog):
                 balance = result['coins'] if result else 0
                 await interaction.response.send_message(f"Баланс пользователя {user.display_name}: {balance} монет.")
         except pymysql.Error as e:
-            print("Ошибка при выполнении запроса к базе данных:")
+            print("- [Mafanya] Ошибка при выполнении запроса к базе данных:")
             print(e)
             await interaction.response.send_message("Произошла ошибка при попытке получить баланс пользователя.", ephemeral=True)
 
@@ -36,7 +36,7 @@ class Economy(commands.Cog):
                 self.bot.db.conn.commit()
                 await interaction.response.send_message(f"Добавлено {amount} монет на счет пользователя {member.display_name}.")
         except pymysql.Error as e:
-            print("Ошибка при выполнении запроса к базе данных:")
+            print("- [Mafanya] Ошибка при выполнении запроса к базе данных:")
             print(e)
             await interaction.response.send_message("Произошла ошибка при попытке добавить монеты пользователю.", ephemeral=True)
 
@@ -68,7 +68,7 @@ class Economy(commands.Cog):
                 self.bot.db.conn.commit()
                 await interaction.response.send_message(f"Переведено {amount} монет пользователю {receiver.display_name}.")
         except pymysql.Error as e:
-            print("Ошибка при выполнении запроса к базе данных:")
+            print("- [Mafanya] Ошибка при выполнении запроса к базе данных:")
             print(e)
             await interaction.response.send_message("Произошла ошибка при попытке перевести монеты.", ephemeral=True)
 
@@ -100,7 +100,7 @@ class Economy(commands.Cog):
 
                 await interaction.response.send_message(f"Вы купили {amount} жетонов за {total_cost} монет.")
         except pymysql.Error as e:
-            print("Ошибка при выполнении запроса к базе данных:")
+            print("- [Mafanya] Ошибка при выполнении запроса к базе данных:")
             print(e)
             await interaction.response.send_message("Произошла ошибка при попытке купить жетоны.", ephemeral=True)
 
@@ -128,7 +128,7 @@ class Economy(commands.Cog):
 
                 await interaction.response.send_message(f"Никнейм изменен на {new_nickname}.")
         except pymysql.Error as e:
-            print("Ошибка при выполнении запроса к базе данных:")
+            print("- [Mafanya] Ошибка при выполнении запроса к базе данных:")
             print(e)
             await interaction.response.send_message("Произошла ошибка при попытке смены никнейма.", ephemeral=True)
 
