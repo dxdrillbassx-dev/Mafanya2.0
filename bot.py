@@ -10,8 +10,12 @@ from menu import Menu
 from economy_cog import Economy
 from profile_cog import ProfileView
 from profile_cog import Profile
+from db_connect import Database
 
 bot = commands.Bot(command_prefix=commands.when_mentioned, help_command=None, intents=disnake.Intents.all(), test_guilds=[1227760104963837952])
+bot.db = Database()
+bot.db.connect()
+bot.db.create_tables()
 
 # Загрузка модулей (cogs)
 bot.add_cog(Censorship(bot))
@@ -24,6 +28,7 @@ bot.add_cog(Menu(bot))
 bot.add_cog(Economy(bot))
 
 bot.load_extension("profile_cog")
+bot.load_extension("database_cog")
 
 @bot.event
 async def on_ready():
