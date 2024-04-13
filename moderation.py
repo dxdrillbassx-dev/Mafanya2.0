@@ -1,48 +1,74 @@
+import asyncio
+
 import disnake
 from disnake.ext import commands
-import asyncio
+from db_connect import Database
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.db = bot.db
 
-    @commands.command(name="кик", aliases=["кыш", "выгнать"], usage="kick <@user> <reason=None>", brief="Кикает пользователя с сервера")
+    @commands.slash_command(
+        name="кик",
+        description="Кикает пользователя с сервера"
+    )
     @commands.has_permissions(kick_members=True)
-    async def kick(self, ctx, member: disnake.Member, *, reason="Нарушение правил!"):
-        await ctx.send(f"Администратор {ctx.author.mention} исключил пользователя {member.mention} по причине: {reason}")
+    async def kick(self, inter, member: disnake.Member, reason: str = "Нарушение правил!"):
+        await inter.response.send_message(
+            f"Администратор {inter.author.mention} исключил пользователя {member.mention} по причине: {reason}"
+        )
         await member.kick(reason=reason)
 
-    @commands.slash_command()
-    async def kick(self, interaction, member: disnake.Member, reason: str = "Нарушение правил!"):
-        await interaction.response.send_message(
-            f"Администратор {interaction.author.mention} исключил пользователя {member.mention} по причине: {reason}")
-        await member.kick(reason=reason)
-
-    @commands.command(name="бан", aliases=["баня", "банан"], usage="ban <@user> <reason=None>", brief="Банит пользователя на сервере")
+    @commands.slash_command(
+        name="бан",
+        description="Банит пользователя на сервере"
+    )
     @commands.has_permissions(ban_members=True)
-    async def ban(self, ctx, member: disnake.Member, *, reason="Нарушение правил!"):
-        await ctx.send(f"Администратор {ctx.author.mention} забанил пользователя {member.mention} по причине: {reason}")
+    async def ban(self, inter, member: disnake.Member, reason: str = "Нарушение правил!"):
+        await inter.response.send_message(
+            f"Администратор {inter.author.mention} забанил пользователя {member.mention} по причине: {reason}"
+        )
         await member.ban(reason=reason)
 
-    @commands.command(name="очистка", aliases=["очистить", "clear"], usage="clear <количество сообщений>", brief="Удаляет указанное количество сообщений")
+    @commands.slash_command(
+        name="очистка",
+        description="Удаляет указанное количество сообщений"
+    )
     @commands.has_permissions(manage_messages=True)
-    async def clear(self, ctx, amount: int):
-        deleted = await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(f"Успешно удалено {len(deleted)-1} сообщений!", delete_after=5)
+    async def clear(self, inter, amount: int):
+        deleted = await inter.channel.purge(limit=amount + 1)
+        await inter.response.send_message(f"Успешно удалено {len(deleted) - 1} сообщений!", ephemeral=True)
 
-    @commands.command(name="мут", aliases=["mute"], usage="mute <@участник> <время в секундах>", brief="Мутит пользователя на сервере")
-    @commands.has_permissions(manage_messages=True)
-    async def mute(self, ctx, member: disnake.Member, duration: int = None):
-        mute_role = disnake.utils.get(ctx.guild.roles, name="Muted")
+    @commands.slash_command()
+    async def mute(self, interaction, member: disnake.Member, duration: int = None):
+        mute_role = disnake.utils.get(interaction.guild.roles, name="Muted")
         if not mute_role:
-            await ctx.send("Роль 'Muted' не найдена, создайте её для использования этой команды.")
+            await interaction.response.send_message(
+                "Роль 'Muted' не найдена, создайте её для использования этой команды.")
             return
+
+        # Добавляем информацию о муте в базу данных
+        self.db.add_mute(member.id, duration)
+
+        # Применяем мут на сервере
         await member.add_roles(mute_role)
-        await ctx.send(f"{member.display_name} был заглушён на {duration} секунд.")
-        if duration:
-            await asyncio.sleep(duration)
-            await member.remove_roles(mute_role)
-            await ctx.send(f"{member.display_name} теперь свободен от мута.")
+        try:
+            await interaction.response.defer()  # Откладываем отправку ответа
+            await asyncio.sleep(1)  # Подождите немного, чтобы убедиться, что взаимодействие завершено
+            await interaction.edit_original_message(content=f"{member.display_name} был заглушён на {duration} секунд.")
+
+            if duration:
+                await asyncio.sleep(duration)
+                await member.remove_roles(mute_role)
+                try:
+                    await interaction.response.defer()  # Откладываем отправку ответа
+                    await asyncio.sleep(1)  # Подождите немного, чтобы убедиться, что взаимодействие завершено
+                    await interaction.edit_original_message(content=f"{member.display_name} теперь свободен от мута.")
+                except Exception as e:
+                    print(f"An error occurred while editing the message: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     @commands.command(name="размут", aliases=["unmute"], usage="unmute <@участник>", brief="Снимает мут с пользователя")
     @commands.has_permissions(manage_messages=True)

@@ -10,7 +10,7 @@ class DatabaseCog(commands.Cog):
 
     def cog_unload(self):
         self.db.disconnect()
-        print("Ког выгружен. Соединение с базой данных закрыто.")
+        print("- [Mafanya] Ког выгружен. Соединение с базой данных закрыто.")
 
 def setup(bot):
     bot.add_cog(DatabaseCog(bot))
