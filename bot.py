@@ -7,6 +7,9 @@ from calc import Calculator
 from rules_menu import RulesMenu
 from party import Party
 from menu import Menu
+from economy_cog import Economy
+from profile_cog import ProfileView
+from profile_cog import Profile
 
 bot = commands.Bot(command_prefix=commands.when_mentioned, help_command=None, intents=disnake.Intents.all(), test_guilds=[1227760104963837952])
 
@@ -18,6 +21,9 @@ bot.add_cog(Calculator(bot))
 bot.add_cog(RulesMenu(bot))
 bot.add_cog(Party(bot))
 bot.add_cog(Menu(bot))
+bot.add_cog(Economy(bot))
+
+bot.load_extension("profile_cog")
 
 @bot.event
 async def on_ready():
