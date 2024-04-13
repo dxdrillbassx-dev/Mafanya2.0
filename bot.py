@@ -32,7 +32,7 @@ bot.load_extension("database_cog")
 
 @bot.event
 async def on_ready():
-    print(f"Bot {bot.user} is ready to work.")
+    print(f"- [Mafanya] Я {bot.user} полностью готова к работе.")
 
 @bot.event
 async def on_command_error(ctx, error):
