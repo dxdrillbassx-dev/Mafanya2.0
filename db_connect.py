@@ -89,12 +89,12 @@ class Database:
                 cursor.execute(
                     """
                     CREATE TABLE IF NOT EXISTS user_reputation (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        giver_id BIGINT NOT NULL,
-                        receiver_id BIGINT NOT NULL,
-                        date_given DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        UNIQUE INDEX idx_giver_receiver (giver_id, receiver_id)
-                        ADD COLUMN reputation INT NOT NULL DEFAULT 0;
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    giver_id BIGINT NOT NULL,
+                    receiver_id BIGINT NOT NULL,
+                    date_given DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    reputation INT NOT NULL DEFAULT 0,
+                    UNIQUE INDEX idx_giver_receiver(giver_id, receiver_id)
                     )
                 """
                 )
@@ -213,6 +213,53 @@ class Database:
         with self.conn.cursor() as cursor:
             cursor.execute(query, (giver_id, receiver_id))
             self.conn.commit()
+
+    def add_reputation(self, giver_id, receiver_id, points):
+        try:
+            with self.conn.cursor() as cursor:
+                # Проверяем, есть ли уже запись о репутации для данного пользователя
+                cursor.execute(
+                    "SELECT * FROM user_reputation WHERE giver_id = %s AND receiver_id = %s",
+                    (giver_id, receiver_id)
+                )
+                result = cursor.fetchone()
+                if result:
+                    # Если запись уже есть, обновляем ее данные
+                    cursor.execute(
+                        "UPDATE user_reputation SET reputation = reputation + %s WHERE giver_id = %s AND receiver_id = %s",
+                        (points, giver_id, receiver_id),
+                    )
+                else:
+                    # Если записи нет, создаем новую
+                    cursor.execute(
+                        "INSERT INTO user_reputation (giver_id, receiver_id, reputation) VALUES (%s, %s, %s)",
+                        (giver_id, receiver_id, points),
+                    )
+            self.conn.commit()
+            print("- [Mafanya] Репутация успешно добавлена в базу данных.")
+        except pymysql.Error as e:
+            print("- [Mafanya] Ошибка при добавлении репутации в базу данных:")
+            print(e)
+
+    #ТОП ПО СООБЩЕНИЯМ
+    def get_top_users(self, limit):
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT user_id, COUNT(*) AS activity_count
+                    FROM user_activity
+                    GROUP BY user_id
+                    ORDER BY activity_count DESC
+                    LIMIT %s
+                    """,
+                    (limit,)
+                )
+                top_users = cursor.fetchall()
+                return top_users
+        except pymysql.Error as e:
+            print("Ошибка при получении топа пользователей:")
+            print(e)
 
     # ЗАКРЫТИЕ СОЕДИНЕНИЯ
     def disconnect(self):
