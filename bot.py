@@ -33,7 +33,11 @@ bot.add_cog(Economy(bot))
 
 bot.load_extension("profile_cog")
 bot.load_extension("database_cog")
-bot.load_extension('commands_cog')
+bot.load_extension("commands_cog")
+bot.load_extension("top")
+bot.load_extension('spotify_status')
+bot.load_extension("info_cog")
+bot.load_extension("caps_filter")
 
 intents = disnake.Intents.default()
 intents.messages = True
@@ -62,7 +66,6 @@ async def on_command_error(ctx, error):
                 description=f"Правильное использование команды: {ctx.prefix}{ctx.command.name}\nПример: {ctx.prefix}{ctx.command.usage}"
             )
         )
-
 
 # Токен
 bot.run("MTIyNjkzNzYwMjY2NjQwMTgxMg.G0VaZu.nik9AnmESFU5gif3hXR2Mmk4LFH3sDTeFFG_IM")

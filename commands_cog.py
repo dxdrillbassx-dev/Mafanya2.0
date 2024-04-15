@@ -30,6 +30,9 @@ class CommandsCog(commands.Cog):
                 embed.add_field(name="/commands", value="Показывает список команд")
                 embed.add_field(name="/profile", value="Показывает профиль пользователя")
                 embed.add_field(name="/rules", value="Узнать подробности системы и правил")
+                embed.add_field(name="/info", value="Отображение информации о пользователе")
+                embed.add_field(name="/top", value="Показывает топ пользователей")
+                embed.add_field(name="+", value="Ответ на сообщение ставит реакцию")
             elif interaction.component.label == "Развлечения":
                 embed = disnake.Embed(title="Команды развлечений", description="Список команд развлечений:")
                 embed.add_field(name="/calc", value="Простой калькулятор")
@@ -54,6 +57,8 @@ class CommandsCog(commands.Cog):
                 embed.add_field(name="/warn", value="Выдаёт предупреждение пользователю")
                 embed.add_field(name="/activity", value="Показывает активность пользователя на сервере")
                 embed.add_field(name="/avatar", value="Показывает аватар человека на сервере")
+                embed.add_field(name="/enable_caps_filter", value="Включить фильтр капса")
+                embed.add_field(name="/disable_caps_filter", value="Выключить фильтр капса")
             else:
                 embed = disnake.Embed(title="Ошибка", description="Непредвиденное действие")
 

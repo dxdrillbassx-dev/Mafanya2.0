@@ -1,7 +1,5 @@
 import disnake
 from disnake.ext import commands
-from disnake.ext.commands import CheckFailure
-
 
 class Reputation(commands.Cog):
     def __init__(self, bot, db):
@@ -13,37 +11,37 @@ class Reputation(commands.Cog):
         if message.author.bot or message.author == self.bot.user:
             return
 
-        # Проверяем, есть ли "+" в начале сообщения и упоминание пользователей
+        if message.content.startswith('+') and message.reference:
+            replied_message = await message.channel.fetch_message(message.reference.message_id)
+            if replied_message.author == message.author:
+                await message.channel.send("Вы не можете добавить репутацию самому себе!")
+                return
+
         if message.content.startswith('+') and message.mentions:
-            # Добавляем репутацию первому упомянутому пользователю
             user_to_rep = message.mentions[0]
-            if user_to_rep.id != message.author.id:  # Проверяем, чтобы пользователь не добавил репутацию сам себе
+            if user_to_rep.id != message.author.id:  # Проверка на разных пользователей
                 try:
-                    if not self.db.check_reputation(message.author.id, user_to_rep.id):  # Проверяем, можно ли добавить репутацию
-                        await self.add_reputation(user_to_rep, message.channel)
+                    if not self.db.check_reputation(message.author.id, user_to_rep.id):
+                        await self.add_reputation(message, user_to_rep)
                     else:
                         await message.channel.send("Вы уже добавляли репутацию этому пользователю!")
                 except Exception as e:
                     await message.channel.send(f"Произошла ошибка при добавлении репутации: {e}")
-            else:
-                await message.channel.send("Вы не можете добавить репутацию самому себе!")
 
-    async def add_reputation(self, user, channel):
-        # Посылка сообщения о добавлении репутации
+    async def add_reputation(self, message, user):
+        channel = message.channel
         if channel:
             await channel.send(f"Репутация пользователя {user.display_name} увеличена на +1!")
-
-        # Обновление репутации в базе данных
         try:
-            self.db.update_reputation(user.id, 1)
+            self.db.add_reputation(message.author.id, user.id, 1)
         except Exception as e:
-            await channel.send(f"Произошла ошибка при обновлении репутации: {e}")
+            await message.channel.send(f"Произошла ошибка при обновлении репутации: {e}")
 
 def setup(bot):
-    from db_connect import Database  # Импорт вашего модуля управления базой данных
-    db = Database()  # Создаем экземпляр класса базы данных
+    from db_connect import Database
+    db = Database()
     try:
-        db.connect()  # Устанавливаем соединение с базой данных
+        db.connect()
     except Exception as e:
         print(f"Ошибка при подключении к базе данных: {e}")
-    bot.add_cog(Reputation(bot, db))  # Добавляем ког, передавая экземпляр базы данных
+    bot.add_cog(Reputation(bot, db))
